@@ -1,14 +1,25 @@
 import { View, StyleSheet, Image, Text, ScrollView } from "react-native";
 import { MEALS } from "../data/dummy-data";
-import { useLayoutEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 import IconButton from "../components/IconButton";
+import { FavouritesContext } from "../store/context/favourties-context";
 
 function MealDetailsScreen({ route, navigation }) {
+  const favouriteMealsContext = useContext(FavouritesContext);
+
   const mealId = route.params.mealId;
 
   const meal = MEALS.find((item) => item.id === mealId);
 
-  function handleSavePress() {}
+  const mealIsFav = favouriteMealsContext.ids.includes(mealId);
+
+  function handleSavePress() {
+    if (mealIsFav) {
+      favouriteMealsContext.removeFavourite(mealId);
+    } else {
+      favouriteMealsContext.addFavourite(mealId);
+    }
+  }
 
   useLayoutEffect(() => {
     const mealTitle = MEALS.find((item) => item.id === mealId).title;
@@ -17,7 +28,11 @@ function MealDetailsScreen({ route, navigation }) {
       title: mealTitle,
       headerRight: () => {
         return (
-          <IconButton icon="star" color="white" onPress={handleSavePress} />
+          <IconButton
+            icon={mealIsFav ? "star" : "star-outline"}
+            color="white"
+            onPress={handleSavePress}
+          />
         );
       },
     });
